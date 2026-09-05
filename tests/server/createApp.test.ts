@@ -186,7 +186,7 @@ describe("Incident Hub API", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
-      openIncidents: 1,
+      openIncidents: 2,
       unresolvedCriticalIncidents: 1,
       resolvedIncidents: 1,
     });

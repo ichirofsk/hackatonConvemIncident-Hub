@@ -10,7 +10,7 @@ export function getDashboardMetrics(repository: IncidentRepository): DashboardMe
   const incidents = repository.list();
 
   return {
-    openIncidents: incidents.filter((incident) => incident.status === "Open").length,
+    openIncidents: incidents.filter((incident) => incident.status !== "Resolved").length,
     unresolvedCriticalIncidents: incidents.filter(
       (incident) => incident.severity === "Critical" && incident.status !== "Resolved",
     ).length,

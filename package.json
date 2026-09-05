@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --configLoader native",
     "api": "tsx src/server/index.ts",
+    "start": "npm run build && npm run api",
     "build": "tsc --noEmit && vite build --configLoader native",
     "preview": "vite preview --configLoader native",
     "test": "vitest run --configLoader native",
@@ -13,6 +14,7 @@
   },
   "dependencies": {
     "express": "^5.2.1",
+    "lucide-react": "^1.41.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.18.3"

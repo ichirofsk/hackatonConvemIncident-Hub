@@ -72,6 +72,8 @@ O frontend comunicará apenas com a camada de serviços HTTP. A persistência se
 
 O pivot para uma arquitetura distribuída somente será considerado depois que todos os requisitos obrigatórios, os testes críticos, a validação manual, o README e o primeiro deploy estiverem concluídos.
 
+Para métricas do dashboard, um incidente em `Open` ou `In Progress` será considerado aberto. Apenas incidentes em `Resolved` serão considerados fechados.
+
 ## Estrutura geral da solução
 
 ```text
@@ -144,7 +146,7 @@ Esta seção funcionará como o acompanhamento passo a passo do desenvolvimento.
 | Estrutura e testes | Concluída | Vite, TypeScript, React e Vitest configurados. O teste de fumaça e o build de produção foram executados com sucesso. | Modelar domínio e persistência. |
 | Domínio e persistência | Concluída e ampliada | Entidades, regra de transição, comentários, SQLite, dados iniciais e persistência testados. | Construir interface sobre o contrato atualizado. |
 | API e regras de negócio | Concluída e ampliada | API HTTP para incidentes e comentários, timeline unificada e validações implementadas e testadas. | Construir interface. |
-| Interface | Pendente | — | — |
+| Interface | Concluída | Interface React conectada à API, rotas, dashboard, incidentes, detalhes, status, comentários e criação implementados. | Validar manualmente o fluxo completo com o monólito local. |
 | Testes e validação final | Pendente | — | — |
 | Deploy e documentação final | Pendente | — | — |
 
@@ -238,6 +240,47 @@ Antes da implementação da interface, foi realizado um brainstorm com LLM para 
 
 O prompt consolidado, suas decisões e restrições estão registrados em [docs/UI_BRAINSTORM_PROMPT.md](docs/UI_BRAINSTORM_PROMPT.md). A análise descartou Reports, Analytics e Settings por não fazerem parte do escopo. A implementação usará somente dados reais da API, cores semânticas de severidade e uma timeline baseada em eventos persistidos.
 
+## Etapa Interface visual
+
+### O que foi feito
+
+Foi implementada uma interface React responsiva em tema escuro de Operations Command Center, usando somente dados da API existente. A navegação contém somente Dashboard e Incidentes, removendo Reports, Analytics e Settings por estarem fora de escopo.
+
+As rotas `/`, `/incidents`, `/incidents/new` e `/incidents/:id` foram implementadas com `react-router-dom`. O dashboard exibe métricas reais, distribuição por severidade e status, incidentes que exigem atenção e a tabela com busca e filtros locais. Não foram incluídos comparações com dias anteriores, tempo médio de resolução ou dados artificiais.
+
+A página de detalhe exibe dados persistidos, atividade unificada, adição de comentário e botões contextuais para alteração de status. Para incidentes `Critical` em `Open`, a interface oferece somente o próximo passo permitido, `In Progress`, reforçando a regra obrigatória já protegida pelo backend. O formulário de novo incidente é apresentado como modal e envia os dados reais à API.
+
+Para distinguir a etapa inicial do tratamento ativo sem alterar o contrato exigido pelo desafio, a interface apresenta o status canônico `Open` como `Open (New)`. A API, o banco, os filtros enviados ao backend e as regras de negócio continuam usando exclusivamente `Open`.
+
+Para produção, a aplicação Express passou a servir o build do React e a API no mesmo processo. Isso mantém o deploy em uma única unidade e permite que links diretos para rotas da interface retornem o `index.html` sem interferir nas rotas `/api`.
+
+### Testes e validações
+
+| Teste ou validação | O que validou | Resultado |
+| --- | --- | --- |
+| Testes automatizados existentes | Regressão em domínio, comentários, SQLite, API e regras de status. | Aprovado: 21 testes. |
+| Teste de monólito em produção | Entrega do `index.html` para rota de interface e preservação do endpoint `/api/dashboard`. | Aprovado. |
+| Build de produção | Tipos TypeScript, bundle React, estilos e dependências de rotas/ícones. | Aprovado. |
+| Inspeção visual do preview estático | Renderização da sidebar, header, identidade visual, navegação e estado de carregamento sem defeitos visuais aparentes. | Aprovado. |
+
+O preview estático não possui processo de API próprio, portanto ele mostra estado de carregamento quando executado isoladamente. A validação completa da interface com dados reais deve usar o monólito local pelo comando `npm.cmd run start`, que gera o build e inicia frontend e API em `http://localhost:3000`.
+
+### Resultado e próxima decisão
+
+A interface está conectada ao contrato real da API e não duplica regras de negócio no frontend. O próximo passo é executar manualmente os fluxos obrigatórios no monólito local, registrar os resultados e então concluir README, AI_LOG e FINAL_REPORT.
+
+### Ajustes após revisão da interface
+
+Durante a validação manual, foram identificados controles visuais que sugeriam funcionalidades inexistentes. O sino com badge de notificações e a busca global do header foram removidos para evitar expectativas falsas. A busca funcional foi preservada na tabela de incidentes, onde filtra os dados realmente carregados.
+
+Também foi esclarecida a regra de métricas: incidentes em `Open` e `In Progress` são ambos ativos para o dashboard, pois ainda não foram resolvidos. O card correspondente passou a refletir essa contagem agregada, enquanto os status continuam separados na tabela, nos badges e nas distribuições.
+
+Para reduzir ambiguidade visual, a interface apresenta `Open` como `Open (New)`. Essa mudança é somente de apresentação; o valor persistido, o contrato da API, os filtros enviados ao backend e as regras de negócio continuam utilizando o status obrigatório `Open`.
+
+Na verificação do banco local durante essa revisão, foi constatado que o incidente inicial Payment API instability havia sido movido para `In Progress` por uma interação local e possuía histórico persistido. O seed versionado permanece com status `Open`, e o banco local é ignorado pelo Git; portanto, uma instalação limpa para avaliação recriará o estado exigido pelo desafio.
+
+Após os ajustes, os 21 testes automatizados e o build de produção foram executados novamente com sucesso.
+
 ## Etapa API e regras de negócio
 
 ### O que foi feito
@@ -258,7 +301,7 @@ O processo da API é inicializável pelo script `npm run api`; ele cria o banco 
 | Detalhes e histórico | Retorno de dados completos e do histórico por ambas as rotas disponíveis. | Aprovado. |
 | Regra `Critical` via API | Retorno compreensível de erro e preservação dos dados para transição proibida. | Aprovado. |
 | Incidente inexistente | Resposta 404 com feedback compreensível. | Aprovado. |
-| Dashboard | Contagens de incidentes abertos, `Critical` não resolvidos e resolvidos com base nos dados atuais. | Aprovado. |
+| Dashboard | Contagens de incidentes não resolvidos (`Open` e `In Progress`), `Critical` não resolvidos e resolvidos com base nos dados atuais. | Aprovado. |
 | Build | Verificação de tipos TypeScript e geração do build de produção do frontend. | Aprovado. |
 | Execução local da API | Inicialização pelo comando `npm.cmd run api` e consulta manual ao endpoint `/api/dashboard`. | Aprovado: API disponível em `localhost:3000` e métricas iniciais retornadas conforme esperado. |
 
