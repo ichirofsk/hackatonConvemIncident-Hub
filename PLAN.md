@@ -212,6 +212,7 @@ O processo da API é inicializável pelo script `npm run api`; ele cria o banco 
 | Incidente inexistente | Resposta 404 com feedback compreensível. | Aprovado. |
 | Dashboard | Contagens de incidentes abertos, `Critical` não resolvidos e resolvidos com base nos dados atuais. | Aprovado. |
 | Build | Verificação de tipos TypeScript e geração do build de produção do frontend. | Aprovado. |
+| Execução local da API | Inicialização pelo comando `npm.cmd run api` e consulta manual ao endpoint `/api/dashboard`. | Aprovado: API disponível em `localhost:3000` e métricas iniciais retornadas conforme esperado. |
 
 ### Resultado e próxima decisão
 
