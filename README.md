@@ -24,6 +24,8 @@ O comando abaixo cria o build do React e inicia o monólito (interface e API) em
 npm.cmd run start
 ```
 
+Após iniciar, `http://localhost:3000/health` retorna `{ "status": "ok" }` para uma verificação simples da disponibilidade do processo.
+
 Para desenvolvimento da interface com atualização automática:
 
 ```powershell
@@ -62,7 +64,7 @@ npm.cmd run test:e2e
 npm.cmd run build
 ```
 
-A suíte atual possui testes de domínio, persistência SQLite, API Express, entrega do monólito em produção e três jornadas E2E no navegador. O build também executa a checagem de tipos TypeScript.
+A suíte atual possui testes de domínio, persistência SQLite, API Express, entrega do monólito em produção e sete jornadas E2E no navegador. O build também executa a checagem de tipos TypeScript.
 
 ## Arquitetura
 

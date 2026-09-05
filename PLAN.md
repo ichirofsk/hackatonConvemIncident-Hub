@@ -341,6 +341,10 @@ O texto fixo `All systems operational` foi substituído por `Incident monitoring
 
 A documentação e o código estão preparados para revisão e commit. O deploy requer escolher uma plataforma compatível com o monólito Node/Express; Render ou Railway são opções adequadas. A publicação e sua validação não serão declaradas como feitas até que uma plataforma seja escolhida e o link esteja funcional.
 
+### Refinamento operacional posterior
+
+Após a revisão de qualidade, foi adicionada a rota pública `GET /health`. Ela retorna `{ "status": "ok" }` sem acessar ou alterar o banco de dados, permitindo verificar rapidamente se o processo Express está disponível em uma execução local ou em um futuro deploy. Um teste de integração verifica a resposta `200` e seu contrato mínimo.
+
 ## Etapa API e regras de negócio
 
 ### O que foi feito

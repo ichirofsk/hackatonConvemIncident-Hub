@@ -11,6 +11,15 @@ describe("Incident Hub API", () => {
     repository.seedInitialData();
   });
 
+  it("reports that the application process is healthy", async () => {
+    const app = createApp(repository);
+
+    const response = await request(app).get("/health");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ status: "ok" });
+  });
+
   it("lists incidents and applies status and severity filters", async () => {
     const app = createApp(repository, () => "2026-09-05T13:00:00.000Z");
 

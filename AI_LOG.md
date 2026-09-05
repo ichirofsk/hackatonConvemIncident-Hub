@@ -235,3 +235,29 @@ As sete jornadas E2E passaram, incluindo viewport móvel de 390 px sem overflow 
 ### Decisão
 
 Manter sete jornadas E2E de alto valor para esta entrega. Auditoria de acessibilidade com tecnologias assistivas reais fica como próxima expansão possível.
+
+## 10. Health check operacional
+
+### Objetivo
+
+Adicionar um refinamento técnico de alto valor sem ampliar o escopo do produto.
+
+### Contexto
+
+O monólito já atende à execução local e possui testes de produto, mas não expunha uma rota simples para identificar rapidamente se o processo HTTP estava disponível.
+
+### Instrução
+
+Implementar `GET /health` com resposta mínima, sem dependência do banco ou da interface, e testá-la.
+
+### Resultado
+
+A API agora retorna `{ "status": "ok" }` com HTTP 200 em `/health`.
+
+### Validação
+
+Foi adicionado um teste de integração ao conjunto da API e a suíte completa será executada após a alteração.
+
+### Decisão
+
+Manter o endpoint mínimo e sem dados sensíveis; não adicionar métricas, autenticação ou observabilidade fora do escopo do hackathon.

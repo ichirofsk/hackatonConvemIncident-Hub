@@ -9,6 +9,7 @@
 - Histórico persistido de status, comentários persistidos e timeline unificada.
 - Persistência SQLite com dados iniciais obrigatórios e compatibilidade com banco anterior à inclusão de comentários.
 - Monólito de produção que serve React e API Express em um único processo.
+- Health check público em `GET /health` para confirmar a disponibilidade do processo.
 - Testes automatizados e documentação de execução/decisões.
 
 ## 2. O que não foi entregue?

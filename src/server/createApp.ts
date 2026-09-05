@@ -27,6 +27,10 @@ export function createApp(repository: IncidentRepository, now = () => new Date()
 
   app.use(express.json());
 
+  app.get("/health", (_request, response) => {
+    response.json({ status: "ok" });
+  });
+
   app.get("/api/incidents", (request, response) => {
     const { status, severity } = request.query;
 
