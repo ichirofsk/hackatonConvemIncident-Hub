@@ -130,7 +130,7 @@ Esta seção funcionará como o acompanhamento passo a passo do desenvolvimento.
 | Planejamento inicial | Concluída | Escopo, arquitetura e critérios de aceite registrados neste documento. | Criar estrutura mínima do projeto. |
 | Estrutura e testes | Concluída | Vite, TypeScript, React e Vitest configurados. O teste de fumaça e o build de produção foram executados com sucesso. | Modelar domínio e persistência. |
 | Domínio e persistência | Concluída | Entidades, regra de transição, repositório SQLite e dados iniciais implementados e testados. | Implementar API e validações de entrada. |
-| API e regras de negócio | Pendente | — | — |
+| API e regras de negócio | Concluída | API HTTP, validação de entradas e integração com os casos de uso implementadas e testadas. | Construir interface. |
 | Interface | Pendente | — | — |
 | Testes e validação final | Pendente | — | — |
 | Deploy e documentação final | Pendente | — | — |
@@ -189,3 +189,30 @@ Os riscos ligados à API, validação de entradas, integração com a interface,
 ### Resultado e próxima decisão
 
 O domínio e a persistência local estão prontos para uso pela camada HTTP, com oito testes automatizados aprovados no projeto. A próxima etapa é expor os casos de uso por uma API com validação de entradas, sem criar ainda a interface funcional.
+
+## Etapa API e regras de negócio
+
+### O que foi feito
+
+Foi criada uma API HTTP Express que conecta os casos de uso já existentes à futura interface. A API disponibiliza criação de incidentes, listagem com filtros por status e severidade, detalhes, histórico, alteração de status e métricas do dashboard.
+
+As entradas HTTP são validadas antes de alcançarem o domínio. Criação exige título, descrição, severidade válida e responsável. Filtros e alterações de status aceitam apenas os valores definidos pelo produto. Erros de recurso inexistente, transição proibida e entrada inválida retornam respostas compreensíveis com status HTTP adequados.
+
+O processo da API é inicializável pelo script `npm run api`; ele cria o banco local, aplica o seed idempotente e inicia o servidor na porta 3000 por padrão. A interface ainda não foi implementada.
+
+### Testes executados
+
+| Teste | O que validou | Resultado |
+| --- | --- | --- |
+| Listagem e filtros | Retorno de incidentes e aplicação conjunta de filtros de status e severidade. | Aprovado. |
+| Validação HTTP | Rejeição de filtros, payload de criação, status e JSON malformado. | Aprovado. |
+| Criação | Status inicial `Open`, datas automáticas e consulta posterior do incidente criado. | Aprovado. |
+| Detalhes e histórico | Retorno de dados completos e do histórico por ambas as rotas disponíveis. | Aprovado. |
+| Regra `Critical` via API | Retorno compreensível de erro e preservação dos dados para transição proibida. | Aprovado. |
+| Incidente inexistente | Resposta 404 com feedback compreensível. | Aprovado. |
+| Dashboard | Contagens de incidentes abertos, `Critical` não resolvidos e resolvidos com base nos dados atuais. | Aprovado. |
+| Build | Verificação de tipos TypeScript e geração do build de produção do frontend. | Aprovado. |
+
+### Resultado e próxima decisão
+
+A API e suas regras de entrada estão preparadas para consumo pela interface. O conjunto atual possui testes unitários e de integração cobrindo domínio, persistência e API. A próxima etapa é construir a interface funcional sem duplicar regras de negócio no frontend.

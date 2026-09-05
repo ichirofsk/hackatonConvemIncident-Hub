@@ -5,20 +5,26 @@
   "type": "module",
   "scripts": {
     "dev": "vite --configLoader native",
+    "api": "tsx src/server/index.ts",
     "build": "tsc --noEmit && vite build --configLoader native",
     "preview": "vite preview --configLoader native",
     "test": "vitest run --configLoader native",
     "test:watch": "vitest --configLoader native"
   },
   "dependencies": {
+    "express": "^5.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^26.4.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@types/supertest": "^7.2.1",
     "@vitejs/plugin-react": "^5.0.4",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.13",
     "typescript": "^5.9.3",
     "vite": "^7.1.7",
     "vitest": "^3.2.4"
