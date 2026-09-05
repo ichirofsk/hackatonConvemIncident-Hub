@@ -226,6 +226,12 @@ O contrato de histórico de status original foi preservado. A atividade unificad
 
 O resultado é uma implementação compatível com os requisitos originais, sem regressões detectadas: 19 testes automatizados passaram e o build foi concluído.
 
+### Risco identificado e correção
+
+Foi identificado o risco de bancos SQLite já existentes, criados antes do Change Request, não possuírem a tabela `incident_comments`. A correção foi incluir a criação idempotente dessa tabela na rotina de inicialização do repositório, preservando as tabelas e dados já existentes.
+
+Foi criado um teste com um banco no esquema anterior, contendo um incidente legado. O teste confirmou que o incidente é preservado, que a tabela de comentários é criada ao abrir o banco atualizado e que um comentário novo pode ser persistido. Após essa validação, o conjunto passou a ter 20 testes automatizados aprovados.
+
 ## Direção visual e brainstorm
 
 Antes da implementação da interface, foi realizado um brainstorm com LLM para encontrar uma identidade visual de Operations Command Center. A proposta prioriza uma interface SaaS escura, sóbria, legível e orientada a incidentes, sem aparência de painel genérico ou excessos decorativos.
