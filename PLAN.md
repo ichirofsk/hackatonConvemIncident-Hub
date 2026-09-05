@@ -129,7 +129,7 @@ Esta seção funcionará como o acompanhamento passo a passo do desenvolvimento.
 | --- | --- | --- | --- |
 | Planejamento inicial | Concluída | Escopo, arquitetura e critérios de aceite registrados neste documento. | Criar estrutura mínima do projeto. |
 | Estrutura e testes | Concluída | Vite, TypeScript, React e Vitest configurados. O teste de fumaça e o build de produção foram executados com sucesso. | Modelar domínio e persistência. |
-| Domínio e persistência | Pendente | — | — |
+| Domínio e persistência | Concluída | Entidades, regra de transição, repositório SQLite e dados iniciais implementados e testados. | Implementar API e validações de entrada. |
 | API e regras de negócio | Pendente | — | — |
 | Interface | Pendente | — | — |
 | Testes e validação final | Pendente | — | — |
@@ -157,3 +157,35 @@ Não foram implementados nesta etapa: entidades de incidente, persistência, API
 ### Resultado e próxima decisão
 
 A estrutura está apta para receber módulos de domínio e testes de regras de negócio. O próximo passo planejado é modelar o domínio de incidentes e a persistência, mantendo as fronteiras definidas neste plano.
+
+## Etapa Domínio e persistência
+
+### O que foi feito
+
+Foram modelados os tipos de domínio `Incident`, `Severity`, `IncidentStatus` e `StatusHistoryEntry`. A regra crítica foi isolada no domínio: um incidente `Critical` em `Open` não pode passar diretamente para `Resolved`.
+
+Foi definido o contrato `IncidentRepository` e implementado o adaptador `SqliteIncidentRepository`. O adaptador cria as tabelas de incidentes e histórico, persiste mudanças de status de forma transacional e fornece os três incidentes iniciais exigidos de maneira idempotente.
+
+Foi criado também o caso de uso mínimo de alteração de status. Ele consulta o incidente, aplica a regra de domínio e somente então solicita a persistência da alteração e do histórico.
+
+### Testes executados
+
+| Teste | O que validou | Resultado |
+| --- | --- | --- |
+| Regra de transição `Critical` | Bloqueio de `Open` para `Resolved` e permissão do caminho via `In Progress`. | Aprovado. |
+| Dados iniciais | Criação idempotente dos três incidentes obrigatórios, com títulos, severidades, responsáveis e status esperados. | Aprovado. |
+| Mudança de status permitida | Atualização do incidente e criação de um registro de histórico. | Aprovado. |
+| Mudança de status inválida | Ausência de alteração de status e de histórico quando a transição `Critical` é inválida. | Aprovado. |
+| Persistência em arquivo | Manutenção dos dados após fechar e reabrir o banco SQLite. | Aprovado. |
+| Persistência de mudança de status | Manutenção de status, data de atualização e histórico após fechar e reabrir o banco SQLite. | Aprovado. |
+| Rollback transacional | Reversão da atualização do incidente quando a gravação do histórico falha. | Aprovado. |
+
+### Cobertura de riscos desta etapa
+
+Os testes da camada entregue cobrem a regra de negócio crítica, os dados iniciais, a criação do histórico, a persistência em arquivo e a atomicidade da mudança de status. Em particular, uma falha ao registrar o histórico não deixa o incidente em um estado parcialmente atualizado.
+
+Os riscos ligados à API, validação de entradas, integração com a interface, deploy e documentação final permanecem fora da cobertura atual porque essas partes ainda não foram implementadas. Eles serão tratados nas etapas correspondentes.
+
+### Resultado e próxima decisão
+
+O domínio e a persistência local estão prontos para uso pela camada HTTP, com oito testes automatizados aprovados no projeto. A próxima etapa é expor os casos de uso por uma API com validação de entradas, sem criar ainda a interface funcional.
