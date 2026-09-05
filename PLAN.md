@@ -147,7 +147,8 @@ Esta seção funcionará como o acompanhamento passo a passo do desenvolvimento.
 | Domínio e persistência | Concluída e ampliada | Entidades, regra de transição, comentários, SQLite, dados iniciais e persistência testados. | Construir interface sobre o contrato atualizado. |
 | API e regras de negócio | Concluída e ampliada | API HTTP para incidentes e comentários, timeline unificada e validações implementadas e testadas. | Construir interface. |
 | Interface | Concluída | Interface React conectada à API, rotas, dashboard, incidentes, detalhes, status, comentários e criação implementados. | Validar manualmente o fluxo completo com o monólito local. |
-| Testes e validação final | Pendente | — | — |
+| Testes e validação final | Concluída e ampliada | Bateria Vitest, build, verificação local e sete jornadas E2E no navegador aprovados. | Preparar documentação final e revisar submissão. |
+| Preparação da submissão | Em andamento | README, AI_LOG e FINAL_REPORT criados; interface refatorada em componentes sem mudança de contrato. | Escolher plataforma, publicar e validar o deploy. |
 | Deploy e documentação final | Pendente | — | — |
 
 ## Etapa Estrutura e testes
@@ -280,6 +281,65 @@ Para reduzir ambiguidade visual, a interface apresenta `Open` como `Open (New)`.
 Na verificação do banco local durante essa revisão, foi constatado que o incidente inicial Payment API instability havia sido movido para `In Progress` por uma interação local e possuía histórico persistido. O seed versionado permanece com status `Open`, e o banco local é ignorado pelo Git; portanto, uma instalação limpa para avaliação recriará o estado exigido pelo desafio.
 
 Após os ajustes, os 21 testes automatizados e o build de produção foram executados novamente com sucesso.
+
+## Etapa Testes e validação final
+
+### Bateria necessária para este escopo
+
+Como a solução é um monólito modular com regras de negócio, persistência SQLite, API HTTP e interface React, a validação foi organizada em cinco frentes:
+
+| Frente | Risco coberto |
+| --- | --- |
+| Domínio | Transições inválidas de status, especialmente a regra obrigatória para incidentes `Critical`. |
+| Persistência | Seeds duplicados, reabertura do banco em arquivo, migração do esquema anterior e falhas atômicas ao gravar status/histórico. |
+| API | Contrato HTTP, filtros, criação, validação de entradas, respostas de erro, comentários, atividade, detalhes e métricas. |
+| Empacotamento e produção | Erros de tipos, bundle do React, fallback das rotas da SPA e isolamento das rotas `/api`. |
+| Interface integrada | Carregamento com dados reais, apresentação de métricas, status, filtros e rotas no monólito local. |
+
+### Execução e resultados
+
+Em 05/09/2026, foram executados `npm.cmd run test` e `npm.cmd run build` na raiz do projeto. O uso de `npm.cmd` é necessário neste ambiente porque a política do PowerShell bloqueia a execução do script `npm.ps1`.
+
+| Teste ou validação | O que validou | Resultado |
+| --- | --- | --- |
+| Vitest — domínio | Transições permitidas/proibidas e bloqueio da transição inválida de um incidente `Critical`. | Aprovado: 2 testes. |
+| Vitest — SQLite | Seed idempotente, gravação e reabertura em arquivo, migração de comentários e rollback de falha transacional. | Aprovado: 6 testes. |
+| Vitest — API | Listagem/filtros, payloads inválidos, criação, detalhes, histórico, status, comentários, atividade, erros e dashboard. | Aprovado: 11 testes. |
+| Vitest — produção e fumaça | Inicialização dos módulos, fallback de rota da SPA e manutenção do endpoint `/api/dashboard`. | Aprovado: 2 testes. |
+| Suíte completa | Regressão integrada das cinco suítes acima. | Aprovado: 21/21 testes, 5 arquivos de teste. |
+| `npm.cmd run build` | Checagem de tipos com TypeScript e geração do bundle Vite de produção. | Aprovado: 1.860 módulos transformados; build concluído. |
+| Interface no monólito local | Abertura de `http://localhost:3000/` com API real: três incidentes carregados, 2 não resolvidos, 1 `Critical` não resolvido, 1 resolvido, status `Open (New)` e filtros visíveis. | Aprovado. |
+
+### Limite conhecido da cobertura
+
+As funcionalidades obrigatórias agora possuem cobertura automatizada em navegador para dashboard, filtros, criação, comentário, mudança de status e viewport móvel. A suíte utiliza SQLite em memória, preservando o banco local de demonstração. Para uma evolução pós-hackathon, a prioridade seria auditoria automatizada de acessibilidade com tecnologias assistivas.
+
+### Resultado
+
+Não foi identificado fator de risco estrutural sem cobertura crítica para a submissão: regras sensíveis, persistência, API, build, entrega do monólito e exibição integrada foram validados. A solução está apta para seguir para a documentação final e o deploy.
+
+## Etapa Preparação da submissão
+
+### O que foi feito
+
+Foram criados os três documentos obrigatórios pendentes: `README.md`, com instruções reprodutíveis de execução, reset dos dados e limitações; `AI_LOG.md`, com as decisões, correções e validações relevantes; e `FINAL_REPORT.md`, respondendo objetivamente às perguntas solicitadas pelo desafio sem atribuir como concluídos itens que ainda dependem de deploy.
+
+Também foi feita uma refatoração interna de baixo risco na interface. O conteúdo antes concentrado em `src/client/App.tsx` foi separado em páginas (`Dashboard`, `Incidents` e `IncidentDetail`), componentes reutilizáveis (shell, tabela, badges, estados e modal), um hook de carregamento e utilitários de apresentação. As rotas, chamadas à API e regras de negócio não foram alteradas.
+
+O texto fixo `All systems operational` foi substituído por `Incident monitoring active`, eliminando a contradição visual de declarar todos os sistemas operacionais enquanto existem incidentes ativos.
+
+### Testes e validações
+
+| Teste ou validação | O que validou | Resultado |
+| --- | --- | --- |
+| `npm.cmd run test` | Regressão no domínio, SQLite, API e entrega de produção após a separação dos componentes. | Aprovado: 21/21 testes. |
+| `npm.cmd run build` | Tipos TypeScript e novo bundle React após a refatoração. | Aprovado: 1.870 módulos transformados. |
+| Inspeção da interface compilada | Dashboard carregado no monólito local, métricas reais, `Open (New)`, filtros identificáveis e texto operacional corrigido. | Aprovado. |
+| `npm.cmd run test:e2e` | Dashboard integrado, busca/filtro, criação, comentário, transição permitida de incidente `Critical` e navegação sem overflow em viewport móvel de 390 px. A suíte usa SQLite em memória e não altera a demonstração local. | Aprovado: 7/7 jornadas no Chrome. |
+
+### Próxima decisão
+
+A documentação e o código estão preparados para revisão e commit. O deploy requer escolher uma plataforma compatível com o monólito Node/Express; Render ou Railway são opções adequadas. A publicação e sua validação não serão declaradas como feitas até que uma plataforma seja escolhida e o link esteja funcional.
 
 ## Etapa API e regras de negócio
 

@@ -10,6 +10,7 @@
     "build": "tsc --noEmit && vite build --configLoader native",
     "preview": "vite preview --configLoader native",
     "test": "vitest run --configLoader native",
+    "test:e2e": "npm run build && playwright test",
     "test:watch": "vitest --configLoader native"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "react-router-dom": "^7.18.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/express": "^5.0.6",
     "@types/node": "^26.4.1",
     "@types/react": "^19.2.2",
