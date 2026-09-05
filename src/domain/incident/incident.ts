@@ -22,3 +22,27 @@ export interface StatusHistoryEntry {
   nextStatus: IncidentStatus;
   changedAt: string;
 }
+
+export interface IncidentComment {
+  id: string;
+  incidentId: string;
+  author: string;
+  content: string;
+  createdAt: string;
+}
+
+export type IncidentActivity =
+  | {
+      type: "status-change";
+      id: string;
+      occurredAt: string;
+      previousStatus: IncidentStatus;
+      nextStatus: IncidentStatus;
+    }
+  | {
+      type: "comment";
+      id: string;
+      occurredAt: string;
+      author: string;
+      content: string;
+    };

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { changeIncidentStatus } from "../../src/application/incidents/changeIncidentStatus";
+import { addComment } from "../../src/application/incidents/addComment";
 import { InvalidStatusTransitionError } from "../../src/domain/incident/statusTransition";
 import { SqliteIncidentRepository } from "../../src/infrastructure/sqlite/SqliteIncidentRepository";
 
@@ -91,6 +92,13 @@ describe("SqliteIncidentRepository", () => {
       "In Progress",
       "2026-09-05T12:30:00.000Z",
     );
+    addComment(
+      firstRepository,
+      "seed-payment-api",
+      "Ana",
+      "Contato iniciado com o provedor.",
+      "2026-09-05T12:35:00.000Z",
+    );
     firstRepository.close();
 
     const reopenedRepository = new SqliteIncidentRepository(databasePath);
@@ -109,8 +117,63 @@ describe("SqliteIncidentRepository", () => {
           changedAt: "2026-09-05T12:30:00.000Z",
         },
       ]);
+      expect(reopenedRepository.getComments("seed-payment-api")).toMatchObject([
+        {
+          author: "Ana",
+          content: "Contato iniciado com o provedor.",
+          createdAt: "2026-09-05T12:35:00.000Z",
+        },
+      ]);
     } finally {
       reopenedRepository.close();
+      rmSync(temporaryDirectory, { recursive: true, force: true });
+    }
+  });
+
+  it("adds comments support when opening a database created before the change request", () => {
+    const temporaryDirectory = mkdtempSync(join(tmpdir(), "incident-hub-legacy-"));
+    const databasePath = join(temporaryDirectory, "incident-hub.db");
+    const legacyDatabase = new DatabaseSync(databasePath);
+
+    legacyDatabase.exec(`
+      CREATE TABLE incidents (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        severity TEXT NOT NULL,
+        owner TEXT NOT NULL,
+        status TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      CREATE TABLE status_history (
+        id TEXT PRIMARY KEY,
+        incident_id TEXT NOT NULL,
+        previous_status TEXT NOT NULL,
+        next_status TEXT NOT NULL,
+        changed_at TEXT NOT NULL
+      );
+      INSERT INTO incidents VALUES (
+        'legacy-incident', 'Legacy incident', 'Created before comments', 'High', 'Bruno', 'Open',
+        '2026-09-05T12:00:00.000Z', '2026-09-05T12:00:00.000Z'
+      );
+    `);
+    legacyDatabase.close();
+
+    const repository = new SqliteIncidentRepository(databasePath);
+
+    try {
+      expect(repository.findById("legacy-incident")?.title).toBe("Legacy incident");
+      addComment(
+        repository,
+        "legacy-incident",
+        "Bruno",
+        "Comentário incluído após a atualização.",
+        "2026-09-05T12:10:00.000Z",
+      );
+      expect(repository.getComments("legacy-incident")).toHaveLength(1);
+    } finally {
+      repository.close();
       rmSync(temporaryDirectory, { recursive: true, force: true });
     }
   });

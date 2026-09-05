@@ -1,8 +1,10 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import { changeIncidentStatus, IncidentNotFoundError } from "../application/incidents/changeIncidentStatus";
+import { addComment } from "../application/incidents/addComment";
 import { createIncident } from "../application/incidents/createIncident";
 import { getDashboardMetrics } from "../application/incidents/getDashboardMetrics";
 import { getIncidentDetails } from "../application/incidents/getIncidentDetails";
+import { getIncidentActivity } from "../application/incidents/getIncidentActivity";
 import { listIncidents } from "../application/incidents/listIncidents";
 import type { IncidentRepository } from "../domain/incident/IncidentRepository";
 import { INCIDENT_STATUSES, SEVERITIES, type IncidentStatus, type Severity } from "../domain/incident/incident";
@@ -83,6 +85,34 @@ export function createApp(repository: IncidentRepository, now = () => new Date()
     try {
       const details = getIncidentDetails(repository, request.params.incidentId);
       response.json({ items: details.history });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get("/api/incidents/:incidentId/activity", (request, response, next) => {
+    try {
+      response.json({ items: getIncidentActivity(repository, request.params.incidentId) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post("/api/incidents/:incidentId/comments", (request, response, next) => {
+    const author = requiredText(request.body?.author);
+    const content = requiredText(request.body?.content);
+    const invalidFields: string[] = [];
+
+    if (!author) invalidFields.push("author");
+    if (!content) invalidFields.push("content");
+
+    if (invalidFields.length > 0) {
+      response.status(400).json({ error: "Campos obrigatórios inválidos.", fields: invalidFields });
+      return;
+    }
+
+    try {
+      response.status(201).json(addComment(repository, request.params.incidentId, author!, content!, now()));
     } catch (error) {
       next(error);
     }

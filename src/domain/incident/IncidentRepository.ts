@@ -1,4 +1,4 @@
-import type { Incident, IncidentStatus, StatusHistoryEntry } from "./incident";
+import type { Incident, IncidentComment, IncidentStatus, StatusHistoryEntry } from "./incident";
 
 export interface IncidentRepository {
   findById(id: string): Incident | undefined;
@@ -11,6 +11,8 @@ export interface IncidentRepository {
     changedAt: string,
   ): Incident;
   getStatusHistory(incidentId: string): StatusHistoryEntry[];
+  createComment(comment: IncidentComment): void;
+  getComments(incidentId: string): IncidentComment[];
   seedInitialData(): void;
   close(): void;
 }

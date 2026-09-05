@@ -105,6 +105,66 @@ describe("Incident Hub API", () => {
     expect(response.body).toEqual({ error: "Corpo JSON inválido." });
   });
 
+  it("creates persistent comments and rejects blank comment fields", async () => {
+    const app = createApp(repository, () => "2026-09-05T13:05:00.000Z");
+
+    const invalidResponse = await request(app)
+      .post("/api/incidents/seed-payment-api/comments")
+      .send({ author: "Ana", content: " " });
+    const createResponse = await request(app)
+      .post("/api/incidents/seed-payment-api/comments")
+      .send({ author: "Ana", content: "Provider contacted." });
+
+    expect(invalidResponse.status).toBe(400);
+    expect(invalidResponse.body.fields).toEqual(["content"]);
+    expect(createResponse.status).toBe(201);
+    expect(createResponse.body).toMatchObject({
+      incidentId: "seed-payment-api",
+      author: "Ana",
+      content: "Provider contacted.",
+      createdAt: "2026-09-05T13:05:00.000Z",
+    });
+    expect(repository.getComments("seed-payment-api")).toHaveLength(1);
+  });
+
+  it("returns a unified chronological activity timeline", async () => {
+    const timestamps = ["2026-09-05T13:01:00.000Z", "2026-09-05T13:02:00.000Z"];
+    const app = createApp(repository, () => timestamps.shift()!);
+
+    await request(app).patch("/api/incidents/seed-payment-api/status").send({ status: "In Progress" });
+    await request(app)
+      .post("/api/incidents/seed-payment-api/comments")
+      .send({ author: "Ana", content: "Provider contacted." });
+    const activityResponse = await request(app).get("/api/incidents/seed-payment-api/activity");
+
+    expect(activityResponse.status).toBe(200);
+    expect(activityResponse.body.items).toMatchObject([
+      {
+        type: "status-change",
+        occurredAt: "2026-09-05T13:01:00.000Z",
+        previousStatus: "Open",
+        nextStatus: "In Progress",
+      },
+      {
+        type: "comment",
+        occurredAt: "2026-09-05T13:02:00.000Z",
+        author: "Ana",
+        content: "Provider contacted.",
+      },
+    ]);
+  });
+
+  it("returns 404 when adding a comment to an unknown incident", async () => {
+    const app = createApp(repository);
+
+    const response = await request(app)
+      .post("/api/incidents/unknown-incident/comments")
+      .send({ author: "Ana", content: "Provider contacted." });
+
+    expect(response.status).toBe(404);
+    expect(response.body.error).toContain("não encontrado");
+  });
+
   it("returns understandable feedback and preserves data on an invalid Critical transition", async () => {
     const app = createApp(repository);
 

@@ -3,7 +3,7 @@ import { dirname } from "node:path";
 import { randomUUID } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import type { IncidentRepository } from "../../domain/incident/IncidentRepository";
-import type { Incident, IncidentStatus, Severity, StatusHistoryEntry } from "../../domain/incident/incident";
+import type { Incident, IncidentComment, IncidentStatus, Severity, StatusHistoryEntry } from "../../domain/incident/incident";
 
 type IncidentRow = {
   id: string;
@@ -22,6 +22,14 @@ type StatusHistoryRow = {
   previous_status: IncidentStatus;
   next_status: IncidentStatus;
   changed_at: string;
+};
+
+type IncidentCommentRow = {
+  id: string;
+  incident_id: string;
+  author: string;
+  content: string;
+  created_at: string;
 };
 
 function toIncident(row: IncidentRow): Incident {
@@ -44,6 +52,16 @@ function toStatusHistoryEntry(row: StatusHistoryRow): StatusHistoryEntry {
     previousStatus: row.previous_status,
     nextStatus: row.next_status,
     changedAt: row.changed_at,
+  };
+}
+
+function toIncidentComment(row: IncidentCommentRow): IncidentComment {
+  return {
+    id: row.id,
+    incidentId: row.incident_id,
+    author: row.author,
+    content: row.content,
+    createdAt: row.created_at,
   };
 }
 
@@ -136,6 +154,23 @@ export class SqliteIncidentRepository implements IncidentRepository {
     ).map(toStatusHistoryEntry);
   }
 
+  createComment(comment: IncidentComment): void {
+    this.database
+      .prepare(
+        `INSERT INTO incident_comments (id, incident_id, author, content, created_at)
+         VALUES (?, ?, ?, ?, ?)`,
+      )
+      .run(comment.id, comment.incidentId, comment.author, comment.content, comment.createdAt);
+  }
+
+  getComments(incidentId: string): IncidentComment[] {
+    return (
+      this.database
+        .prepare("SELECT * FROM incident_comments WHERE incident_id = ? ORDER BY created_at ASC, id ASC")
+        .all(incidentId) as IncidentCommentRow[]
+    ).map(toIncidentComment);
+  }
+
   seedInitialData(): void {
     const initialIncidents: Incident[] = [
       {
@@ -212,6 +247,14 @@ export class SqliteIncidentRepository implements IncidentRepository {
         previous_status TEXT NOT NULL,
         next_status TEXT NOT NULL,
         changed_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS incident_comments (
+        id TEXT PRIMARY KEY,
+        incident_id TEXT NOT NULL REFERENCES incidents(id),
+        author TEXT NOT NULL CHECK (length(trim(author)) > 0),
+        content TEXT NOT NULL CHECK (length(trim(content)) > 0),
+        created_at TEXT NOT NULL
       );
     `);
   }

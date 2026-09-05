@@ -24,6 +24,8 @@ A prioridade é entregar uma solução simples, persistente, testada e fácil de
 - Alterar o status de um incidente.
 - Impedir a transição direta de `Open` para `Resolved` em incidentes `Critical`.
 - Registrar e persistir o histórico de alterações de status.
+- Permitir comentários obrigatoriamente identificados por autor e conteúdo, persistidos por incidente.
+- Exibir uma timeline cronológica única com comentários e alterações de status.
 - Exibir dashboard com incidentes abertos, `Critical` não resolvidos e resolvidos.
 - Disponibilizar persistência local e dados iniciais obrigatórios.
 - Criar testes automatizados para regras críticas.
@@ -52,6 +54,10 @@ Será adotado um monólito modular com TypeScript, React, Vite, Express e SQLite
 Em desenvolvimento, o Vite servirá a interface React e encaminhará chamadas para a API Express. Em produção, o Express servirá o build do frontend e as rotas da API no mesmo processo.
 
 SQLite será utilizado para persistência local por exigir pouca configuração. Vitest será usado para testes unitários e de integração.
+
+Após o Change Request #1, comentários foram modelados como registros próprios, associados ao incidente. A timeline unificada é montada no caso de uso a partir de comentários e histórico de status, preservando cada evento original e ordenando-o cronologicamente. Essa escolha evita duplicar eventos e mantém o histórico de status compatível com o requisito original.
+
+`react-router-dom` foi incluído para suportar rotas reais da futura interface (`/`, `/incidents`, `/incidents/new` e `/incidents/:id`) sem acoplar páginas ao backend. A dependência será usada apenas na etapa de interface, depois de estabilizado o contrato da API.
 
 A modularização será mantida por meio de fronteiras claras:
 
@@ -91,6 +97,8 @@ tests/             # testes unitários e de integração
 9. Implantar a aplicação.
 10. Completar README, AI_LOG e FINAL_REPORT.
 
+O Change Request #1 altera a ordem dos passos 3 a 6: comentários, persistência, API e testes de atividade unificada são concluídos antes da construção da interface.
+
 ## Critérios de aceite
 
 - Um incidente criado permanece disponível após reiniciar a aplicação.
@@ -100,6 +108,9 @@ tests/             # testes unitários e de integração
 - Um incidente `Critical` em `Open` não pode ser resolvido diretamente.
 - Um incidente `Critical` pode seguir de `Open` para `In Progress` e então para `Resolved`.
 - Toda alteração de status cria um item persistido no histórico.
+- Um comentário com autor e conteúdo válidos pode ser adicionado e continua disponível após reiniciar a aplicação.
+- Comentários vazios ou sem autor são rejeitados com feedback compreensível.
+- A atividade do incidente apresenta comentários e alterações de status em ordem cronológica.
 - O dashboard reflete o estado atual dos dados.
 - Os três incidentes iniciais obrigatórios estão disponíveis.
 - Os testes das regras críticas passam.
@@ -111,6 +122,8 @@ tests/             # testes unitários e de integração
 - Uso de tempo em aparência antes dos requisitos obrigatórios.
 - Inconsistência entre banco, API e interface.
 - Regressões após mudanças no fluxo de status.
+- Ordenação incorreta ou perda de eventos na timeline unificada após a inclusão de comentários.
+- Migration de comentários comprometendo dados ou fluxos existentes.
 - Documentação incompleta no momento do code freeze.
 
 Para reduzir esses riscos, a ordem de prioridade será: correção, completude, simplicidade, confiabilidade e, por último, funcionalidades adicionais.
@@ -129,8 +142,8 @@ Esta seção funcionará como o acompanhamento passo a passo do desenvolvimento.
 | --- | --- | --- | --- |
 | Planejamento inicial | Concluída | Escopo, arquitetura e critérios de aceite registrados neste documento. | Criar estrutura mínima do projeto. |
 | Estrutura e testes | Concluída | Vite, TypeScript, React e Vitest configurados. O teste de fumaça e o build de produção foram executados com sucesso. | Modelar domínio e persistência. |
-| Domínio e persistência | Concluída | Entidades, regra de transição, repositório SQLite e dados iniciais implementados e testados. | Implementar API e validações de entrada. |
-| API e regras de negócio | Concluída | API HTTP, validação de entradas e integração com os casos de uso implementadas e testadas. | Construir interface. |
+| Domínio e persistência | Concluída e ampliada | Entidades, regra de transição, comentários, SQLite, dados iniciais e persistência testados. | Construir interface sobre o contrato atualizado. |
+| API e regras de negócio | Concluída e ampliada | API HTTP para incidentes e comentários, timeline unificada e validações implementadas e testadas. | Construir interface. |
 | Interface | Pendente | — | — |
 | Testes e validação final | Pendente | — | — |
 | Deploy e documentação final | Pendente | — | — |
@@ -189,6 +202,35 @@ Os riscos ligados à API, validação de entradas, integração com a interface,
 ### Resultado e próxima decisão
 
 O domínio e a persistência local estão prontos para uso pela camada HTTP, com oito testes automatizados aprovados no projeto. A próxima etapa é expor os casos de uso por uma API com validação de entradas, sem criar ainda a interface funcional.
+
+## Mudança de requisitos Change Request 1
+
+Às 14:00, o produto passou a exigir comentários persistidos por incidente e uma timeline única que reúne comentários e mudanças de status em ordem cronológica. A mudança é obrigatória e não substitui requisitos anteriores.
+
+O impacto ficou restrito às camadas de domínio, aplicação, infraestrutura SQLite e API. Foram adicionados o modelo `IncidentComment`, os casos de uso de adicionar comentário e obter atividade do incidente, a tabela `incident_comments` e os endpoints `POST /api/incidents/:incidentId/comments` e `GET /api/incidents/:incidentId/activity`.
+
+O contrato de histórico de status original foi preservado. A atividade unificada é uma leitura derivada, que combina os dois tipos de eventos sem criar uma cópia adicional dos dados. Eventos com a mesma data são ordenados de maneira determinística pelo identificador.
+
+### Testes da mudança
+
+| Teste | O que validou | Resultado |
+| --- | --- | --- |
+| Validação de comentário | Rejeição de conteúdo vazio e identificação do campo inválido. | Aprovado. |
+| Criação de comentário | Inclusão de autor, conteúdo, data/hora e associação ao incidente. | Aprovado. |
+| Incidente inexistente | Resposta 404 ao tentar comentar em incidente ausente. | Aprovado. |
+| Persistência | Disponibilidade do comentário após fechar e reabrir o banco SQLite. | Aprovado. |
+| Compatibilidade de migration | Abertura de banco no esquema anterior, preservação de incidente existente e criação da tabela de comentários. | Aprovado. |
+| Timeline unificada | Combinação e ordenação cronológica de mudança de status e comentário. | Aprovado. |
+| Regressão | Execução de todos os testes anteriores de domínio, SQLite e API. | Aprovado. |
+| Build | Verificação de tipos e geração do build após a mudança. | Aprovado. |
+
+O resultado é uma implementação compatível com os requisitos originais, sem regressões detectadas: 19 testes automatizados passaram e o build foi concluído.
+
+## Direção visual e brainstorm
+
+Antes da implementação da interface, foi realizado um brainstorm com LLM para encontrar uma identidade visual de Operations Command Center. A proposta prioriza uma interface SaaS escura, sóbria, legível e orientada a incidentes, sem aparência de painel genérico ou excessos decorativos.
+
+O prompt consolidado, suas decisões e restrições estão registrados em [docs/UI_BRAINSTORM_PROMPT.md](docs/UI_BRAINSTORM_PROMPT.md). A análise descartou Reports, Analytics e Settings por não fazerem parte do escopo. A implementação usará somente dados reais da API, cores semânticas de severidade e uma timeline baseada em eventos persistidos.
 
 ## Etapa API e regras de negócio
 
