@@ -261,3 +261,29 @@ Foi adicionado um teste de integração ao conjunto da API e a suíte completa s
 ### Decisão
 
 Manter o endpoint mínimo e sem dados sensíveis; não adicionar métricas, autenticação ou observabilidade fora do escopo do hackathon.
+
+## 11. Reprodução limpa da entrega
+
+### Objetivo
+
+Verificar se o repositório atual pode ser instalado e validado sem depender do diretório de desenvolvimento original.
+
+### Contexto
+
+O README exige que outra pessoa consiga reproduzir a solução a partir do repositório. A validação foi feita em uma cópia limpa do commit `a6d1598`.
+
+### Instrução
+
+Executar instalação determinística com `npm.cmd ci`, a suíte Vitest, o build implícito dos E2E e as jornadas Playwright no diretório isolado.
+
+### Resultado
+
+A cópia limpa instalou 213 pacotes; 22 testes Vitest e 7 jornadas E2E passaram. O build também foi concluído.
+
+### Validação
+
+Uma tentativa de iniciar `tsx` no executor isolado falhou antes de carregar a aplicação, com `uv_os_get_passwd` e `ENOMEM`. A repetição teve o mesmo resultado, caracterizando limitação desse ambiente de automação. A execução local real do monólito já havia sido validada antes por endpoint HTTP, e nenhum código foi alterado para ocultar a falha do executor.
+
+### Decisão
+
+Documentar a reprodução limpa aprovada e manter as instruções de inicialização local no README; não declarar uma validação de processo que não foi possível concluir neste ambiente restrito.

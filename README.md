@@ -16,6 +16,12 @@ No Windows com a política do PowerShell bloqueando scripts, use `npm.cmd` nos c
 npm.cmd install
 ```
 
+Para uma instalação reprodutível a partir do `package-lock.json`, especialmente em uma cópia limpa do repositório, prefira:
+
+```powershell
+npm.cmd ci
+```
+
 ## Execução
 
 O comando abaixo cria o build do React e inicia o monólito (interface e API) em `http://localhost:3000`.
@@ -65,6 +71,8 @@ npm.cmd run build
 ```
 
 A suíte atual possui testes de domínio, persistência SQLite, API Express, entrega do monólito em produção e sete jornadas E2E no navegador. O build também executa a checagem de tipos TypeScript.
+
+Em uma cópia limpa do commit `a6d1598`, a instalação com `npm.cmd ci`, os 22 testes Vitest, o build e as 7 jornadas E2E foram executados com sucesso. A execução do monólito pode então ser verificada por `http://localhost:3000/health`.
 
 ## Arquitetura
 

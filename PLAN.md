@@ -345,6 +345,14 @@ A documentação e o código estão preparados para revisão e commit. O deploy 
 
 Após a revisão de qualidade, foi adicionada a rota pública `GET /health`. Ela retorna `{ "status": "ok" }` sem acessar ou alterar o banco de dados, permitindo verificar rapidamente se o processo Express está disponível em uma execução local ou em um futuro deploy. Um teste de integração verifica a resposta `200` e seu contrato mínimo.
 
+### Verificação de reprodutibilidade
+
+Uma cópia limpa do commit `a6d1598` foi criada em diretório temporário para validar a entrega como seria obtida a partir do GitHub. Nessa cópia, `npm.cmd ci` instalou 213 pacotes, `npm.cmd run test` aprovou 22 testes, e `npm.cmd run test:e2e` gerou o build e aprovou 7 jornadas no Chrome.
+
+Os testes SQLite desta execução também confirmam o seed idempotente exigido pelo desafio: `Payment API instability` como `Critical`/`Open`, `Reconciliation delay` como `High`/`In Progress` e `Incorrect customer notification` como `Medium`/`Resolved`.
+
+A tentativa adicional de iniciar `npm.cmd run api` nessa cópia foi bloqueada antes de importar código do projeto por uma falha de memória do executor (`tsx`/`uv_os_get_passwd`, `ENOMEM`). Esse erro não foi tratado como defeito da aplicação: o monólito já havia sido iniciado e validado localmente antes desta verificação, inclusive com consulta à API. A instrução de execução continua documentada no README para reprodução fora desse executor restrito.
+
 ## Etapa API e regras de negócio
 
 ### O que foi feito
