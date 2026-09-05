@@ -341,3 +341,71 @@ A mudança será verificada pelo build e pela suíte E2E, que cobrem a navegaç�
 ### Decisão
 
 Não substituir o bloco por rótulo "mockado". A ausência do elemento torna a interface mais clara e aderente ao escopo.
+
+## 14. Uso intencional de IA e limitações dos planos gratuitos
+
+### Objetivo
+
+Usar IA como apoio deliberado à engenharia e manter uma trilha auditável das decisões, em vez de aceitar código ou recomendações de forma complacente.
+
+### Contexto
+
+Foram utilizados ChatGPT Free Tier e Codex Free Tier para análise de requisitos, planejamento, implementação, testes, revisão visual, investigação de erros e documentação. O trabalho exigiu decisões humanas explícitas sobre escopo, arquitetura e o que rejeitar.
+
+### Estratégia utilizada
+
+Cada solicitação à IA foi contextualizada pelo requisito ou risco em questão. As respostas foram avaliadas contra o Challenge Pack e o Change Request, e mudanças de código foram confirmadas por testes automatizados, build, execução local ou inspeção de interface. Exemplos de sugestões alteradas ou rejeitadas incluem a separação prematura de frontend/API, telas extras fora do escopo, controles visuais sem comportamento e a indicação de uma transição inválida para incidente `Critical`.
+
+### Dificuldade encontrada
+
+Os planos gratuitos impuseram limites de uso e de continuidade de sessão durante o desenvolvimento. Para não interromper a produção dentro da janela do hackathon, foi necessário trocar de contas dos serviços gratuitos e retomar o contexto de trabalho.
+
+### Resultado e decisão
+
+A limitação aumentou o custo de coordenação, mas não reduziu o padrão de validação adotado. A decisão foi preservar o monólito modular, manter a documentação de decisões e não aceitar alterações sem evidência técnica compatível com o risco.
+
+## 15. Método de condução assistido por IA
+
+### Objetivo
+
+Estruturar a execução do hackathon para que a IA acelerasse o trabalho sem conduzir autonomamente decisões de produto ou engenharia.
+
+### Contexto
+
+O projeto começou com preparação do ambiente e leitura do edital, seguida por entendimento do problema, brainstorming, avaliação de arquitetura e planejamento modular. O tempo disponível era limitado e a disponibilidade inicial ficou mais de duas horas abaixo da janela total do desafio.
+
+### Estratégia utilizada
+
+Depois de escolher o monólito modular, a construção foi organizada em etapas cronológicas. Em cada uma, a IA recebeu contexto e uma tarefa delimitada; em seguida, foram definidos testes proporcionais ao risco, executadas validações e documentados os resultados antes de avançar. O fluxo foi: implementação, seleção da bateria de testes, execução, validação e documentação.
+
+Uma regra de condução permaneceu válida durante todo o processo criativo: alterações de código, estrutura ou documentação somente seriam realizadas mediante confirmação explícita. A IA podia propor alternativas e explicar riscos, mas não implementava sugestões adicionais por conta própria. Esse controle separou brainstorming de mudança efetiva no repositório.
+
+### Resultado
+
+O processo permitiu sair de uma base vazia para um protótipo funcional antes do encerramento, e usar a margem restante para reavaliar criticamente arquitetura, qualidade da solução, estrutura e clareza visual. Dessa revisão surgiram a modularização adicional da interface, E2E, health check, limpeza de elementos visuais simulados e o ajuste de tamanho de texto.
+
+### Decisão
+
+Manter a IA como parceira de análise e execução, com a decisão humana responsável por definir escopo, priorizar, questionar sugestões, aprovar mudanças e exigir evidência de qualidade. A documentação de cada marco preserva essa sequência para auditoria.
+
+## 16. Brainstorm de identidade visual e validação de escopo
+
+### Objetivo
+
+Explorar uma identidade visual adequada ao Incident Hub sem introduzir funcionalidades que não pertencem ao desafio.
+
+### Contexto
+
+Foi utilizada uma conversa separada com o ChatGPT para brainstormar referências visuais e gerar o prompt consolidado da interface. O material resultante foi preservado em `docs/UI_BRAINSTORM_PROMPT.md`.
+
+### Estratégia utilizada
+
+Antes de implementar a proposta, cada elemento foi confrontado com os requisitos funcionais e com a estrutura existente. A validação de escopo ocorreu tanto na seleção inicial quanto nas revisões posteriores da tela; sugestões visuais só passaram a código após confirmação explícita.
+
+### Resultado
+
+Foi adotada a identidade de Operations Command Center em tema escuro, usando dados reais da API. Reports, Analytics e Settings foram descartados por não fazerem parte do escopo. Em revisões posteriores, sino de notificações, busca global, avatar de equipe e saudação que sugeria personalização foram removidos ou substituídos por elementos funcionais.
+
+### Decisão
+
+Manter o prompt como evidência de brainstorming, mas avaliar o resultado final pela aderência ao produto e não pela fidelidade a uma proposta estética. A interface foi implementada somente após essa validação e confirmação.

@@ -10,7 +10,7 @@
 - Persistência SQLite com dados iniciais obrigatórios e compatibilidade com banco anterior à inclusão de comentários.
 - Monólito de produção que serve React e API Express em um único processo.
 - Health check público em `GET /health` para confirmar a disponibilidade do processo.
-- Testes automatizados e documentação de execução/decisões: 22 testes Vitest e 8 jornadas E2E aprovados; a instalação limpa com `npm.cmd ci` também foi verificada.
+- Testes automatizados e documentação de execução/decisões: 22 testes Vitest e 8 jornadas E2E aprovados. A instalação limpa com `npm.cmd ci` foi verificada no commit `a6d1598`; os refinamentos posteriores foram novamente validados no diretório de desenvolvimento pela suíte Vitest, build e E2E.
 - Controle acessível e persistente de tamanho do texto, com correção do layout móvel no maior nível de escala.
 
 ## 2. O que não foi entregue?
@@ -61,7 +61,7 @@ A interface ainda é a parte menos coberta. As oito jornadas E2E cobrem dashboar
 ## 12. Se tivesse mais duas horas, quais seriam suas três prioridades?
 
 1. Adicionar validação de acessibilidade com tecnologias assistivas e auditoria automatizada.
-2. Dividir a interface em componentes menores e adicionar testes de componentes.
+2. Adicionar testes de componentes para complementar os E2E e proteger a composição da interface já modularizada.
 3. Evoluir configuração de produção com variáveis de ambiente, logs estruturados e banco gerenciado para um cenário concorrente.
 
 ## 13. Como você avalia sua estratégia inicial?
@@ -74,4 +74,8 @@ Aproximadamente 25 interações relevantes, entre planejamento, implementação,
 
 ## 15. Quais ferramentas de IA foram utilizadas?
 
-Foram utilizados ChatGPT Free Tier e Codex Free Tier. Não foi necessária troca de ferramenta durante o desafio.
+Foram utilizados ChatGPT Free Tier e Codex Free Tier. Os limites de uso e de continuidade dos planos gratuitos exigiram a troca de contas para que o desenvolvimento pudesse continuar dentro da janela do hackathon. Não foi necessária a adoção de uma ferramenta de IA diferente.
+
+## Registro de encerramento
+
+O hash definitivo será registrado no momento da submissão, após o último commit e respectivo push, para garantir que corresponda exatamente ao estado final entregue.

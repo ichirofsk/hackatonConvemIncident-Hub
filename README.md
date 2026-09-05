@@ -12,14 +12,23 @@ No Windows com a política do PowerShell bloqueando scripts, use `npm.cmd` nos c
 
 ## Instalação
 
+Clone o repositório e entre na pasta do projeto:
+
 ```powershell
-npm.cmd install
+git clone https://github.com/ichirofsk/hackatonConvemIncident-Hub.git
+Set-Location .\hackatonConvemIncident-Hub
 ```
 
-Para uma instalação reprodutível a partir do `package-lock.json`, especialmente em uma cópia limpa do repositório, prefira:
+Instale as dependências. Para uma cópia limpa do repositório, use o lockfile:
 
 ```powershell
 npm.cmd ci
+```
+
+O comando abaixo também funciona quando for necessário atualizar dependências após uma mudança de versão:
+
+```powershell
+npm.cmd install
 ```
 
 ## Execução
@@ -29,6 +38,8 @@ O comando abaixo cria o build do React e inicia o monólito (interface e API) em
 ```powershell
 npm.cmd run start
 ```
+
+Abra [http://localhost:3000](http://localhost:3000) no navegador. O dashboard deve exibir os três incidentes de exemplo.
 
 Após iniciar, `http://localhost:3000/health` retorna `{ "status": "ok" }` para uma verificação simples da disponibilidade do processo.
 

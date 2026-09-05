@@ -43,9 +43,11 @@ A prioridade é entregar uma solução simples, persistente, testada e fácil de
 
 - Autenticação, autorização e recuperação de senha.
 - Múltiplas organizações ou tenants.
-- Comentários, anexos e notificações.
+- Anexos e notificações.
 - Edição ou exclusão de incidentes.
 - Métricas avançadas, SLA e integrações externas.
+
+Comentários faziam parte do escopo originalmente não planejado para a primeira versão, mas foram promovidos a requisito obrigatório pelo Change Request #1. A partir dessa mudança, passaram a integrar o escopo obrigatório e a estratégia de testes.
 
 ## Decisões técnicas
 
@@ -132,9 +134,25 @@ Para reduzir esses riscos, a ordem de prioridade será: correção, completude, 
 
 ## Estratégia de IA
 
-A IA será utilizada para gerar código, testes, documentação e investigar erros a partir de instruções em linguagem natural. Cada mudança relevante será validada por testes, execução local e revisão dos fluxos afetados.
+A IA será empregada de forma **intencional e supervisionada**, como instrumento para decompor o problema, comparar alternativas arquiteturais, gerar implementações e testes, revisar riscos e investigar falhas. Sugestões não serão aceitas automaticamente: cada alteração relevante deverá ser confrontada com o escopo, o tempo disponível e os critérios de aceite, e só será mantida após validação por testes, execução local e revisão dos fluxos afetados.
 
-Interações que influenciem arquitetura, correção de bugs, mudanças de abordagem ou validação serão resumidas no `AI_LOG.md`.
+O uso de planos gratuitos do ChatGPT e Codex introduziu uma restrição operacional: limites de uso e de continuidade interromperam sessões durante o desenvolvimento. Para manter a produção dentro do tempo do hackathon, foi necessário alternar contas dos serviços gratuitos. Essa limitação será registrada no `AI_LOG.md` junto às interações que influenciaram arquitetura, correção de bugs, mudanças de abordagem ou validação.
+
+## Método de condução do projeto
+
+O desenvolvimento foi conduzido de maneira incremental e intencional, combinando decisão humana e assistência de IA:
+
+1. Preparação das tecnologias necessárias, leitura das regras do edital e organização de um ambiente de trabalho adequado.
+2. Entendimento do problema, abstração de uma proposta de solução, brainstorming e divisão inicial do projeto em módulos e etapas.
+3. Avaliação de arquiteturas possíveis para a proposta, com atenção à escalabilidade futura e à qualidade viável dentro do tempo do hackathon.
+4. Escolha do monólito modular e decomposição cronológica da construção. Cada etapa seguiu o mesmo ciclo: implementar, definir a bateria de testes apropriada, executar os testes, validar o resultado e documentar a decisão.
+5. Evolução progressiva do zero a um protótipo funcional, apesar de uma disponibilidade inicial inferior a duas horas em relação ao horário total do desafio.
+6. Reavaliação crítica do protótipo quanto à arquitetura, qualidade da solução, estrutura e clareza visual quando houve margem de tempo.
+7. Implementação das melhorias identificadas, incluindo refinamentos de interface, testes E2E, health check e ajuste de acessibilidade para tamanho de texto.
+
+Esse método foi usado para impedir que a velocidade da IA substituísse o julgamento sobre escopo e qualidade: a assistência acelerou investigação e produção, enquanto cada marco permaneceu condicionado a evidência técnica e documentação. Durante todo o processo criativo, a instrução de condução foi que alterações de código, estrutura ou documentação só fossem realizadas mediante confirmação explícita após apresentação do que seria feito; ideias e sugestões interessantes eram discutidas, mas não implementadas automaticamente.
+
+Para a identidade visual, foi utilizada uma conversa separada com o ChatGPT para brainstormar possibilidades e consolidar um prompt de interface. O prompt resultante foi preservado em `docs/UI_BRAINSTORM_PROMPT.md`. Antes da implementação, a proposta foi comparada repetidamente aos requisitos: elementos que sugeriam funcionalidades fora de escopo, como Reports, Analytics, Settings, notificações e busca global sem comportamento, foram rejeitados ou removidos. Assim, a identidade visual foi tratada como apoio à clareza do produto, não como expansão de escopo.
 
 ## Registro de progresso
 
@@ -150,7 +168,7 @@ Esta seção funcionará como o acompanhamento passo a passo do desenvolvimento.
 | Testes e validação final | Concluída e ampliada | Bateria Vitest, build, verificação local e oito jornadas E2E no navegador aprovados. | Preparar documentação final e revisar submissão. |
 | Preparação da submissão | Em andamento | README, AI_LOG e FINAL_REPORT criados; interface refatorada em componentes sem mudança de contrato. | Escolher plataforma, publicar e validar o deploy. |
 | Acessibilidade - tamanho de texto | Concluída | Preferência de escala persistida, controles acessíveis e layout móvel ajustado para a maior escala. | Revisar submissão final. |
-| Deploy e documentação final | Pendente | — | — |
+| Deploy e documentação final | Concluída para a entrega local | Documentação obrigatória criada e execução reprodutível validada. Deploy público foi avaliado e deliberadamente dispensado: não é exigido pelo edital e o SQLite persistente exigiria infraestrutura adicional no Render. | Registrar hash final e concluir envio ao canal indicado. |
 
 ## Etapa Estrutura e testes
 
