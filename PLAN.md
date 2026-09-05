@@ -147,8 +147,9 @@ Esta seção funcionará como o acompanhamento passo a passo do desenvolvimento.
 | Domínio e persistência | Concluída e ampliada | Entidades, regra de transição, comentários, SQLite, dados iniciais e persistência testados. | Construir interface sobre o contrato atualizado. |
 | API e regras de negócio | Concluída e ampliada | API HTTP para incidentes e comentários, timeline unificada e validações implementadas e testadas. | Construir interface. |
 | Interface | Concluída | Interface React conectada à API, rotas, dashboard, incidentes, detalhes, status, comentários e criação implementados. | Validar manualmente o fluxo completo com o monólito local. |
-| Testes e validação final | Concluída e ampliada | Bateria Vitest, build, verificação local e sete jornadas E2E no navegador aprovados. | Preparar documentação final e revisar submissão. |
+| Testes e validação final | Concluída e ampliada | Bateria Vitest, build, verificação local e oito jornadas E2E no navegador aprovados. | Preparar documentação final e revisar submissão. |
 | Preparação da submissão | Em andamento | README, AI_LOG e FINAL_REPORT criados; interface refatorada em componentes sem mudança de contrato. | Escolher plataforma, publicar e validar o deploy. |
+| Acessibilidade - tamanho de texto | Concluída | Preferência de escala persistida, controles acessíveis e layout móvel ajustado para a maior escala. | Revisar submissão final. |
 | Deploy e documentação final | Pendente | — | — |
 
 ## Etapa Estrutura e testes
@@ -352,6 +353,29 @@ Uma cópia limpa do commit `a6d1598` foi criada em diretório temporário para v
 Os testes SQLite desta execução também confirmam o seed idempotente exigido pelo desafio: `Payment API instability` como `Critical`/`Open`, `Reconciliation delay` como `High`/`In Progress` e `Incorrect customer notification` como `Medium`/`Resolved`.
 
 A tentativa adicional de iniciar `npm.cmd run api` nessa cópia foi bloqueada antes de importar código do projeto por uma falha de memória do executor (`tsx`/`uv_os_get_passwd`, `ENOMEM`). Esse erro não foi tratado como defeito da aplicação: o monólito já havia sido iniciado e validado localmente antes desta verificação, inclusive com consulta à API. A instrução de execução continua documentada no README para reprodução fora desse executor restrito.
+
+## Etapa Acessibilidade - ajuste de tamanho do texto
+
+### O que foi feito
+
+Foi adicionado um controle de `Tamanho do texto` no cabeçalho, com ações rotuladas para reduzir e aumentar a escala. Ele oferece quatro níveis (`pequeno`, `padrão`, `grande` e `muito grande`), anuncia o nível atual e persiste a preferência no `localStorage`. A escala é aplicada por variáveis CSS aos textos da interface, sem alterar os dados nem o contrato da API.
+
+### Testes e correção identificada
+
+| Teste ou validação | O que validou | Resultado |
+| --- | --- | --- |
+| E2E de preferência | Aumento real da fonte, rótulo do nível e persistência após recarregar. | Aprovado. |
+| E2E móvel na maior escala | Ausência de overflow horizontal em viewport de 390 px após selecionar `muito grande`. | Aprovado após correção. |
+| Regressão E2E | Fluxos de dashboard, filtros, criação, comentário, status e viewport móvel padrão. | Aprovado: 8/8 jornadas. |
+| Regressão Vitest | Regras, persistência, API e health check. | Aprovado: 22/22 testes. |
+
+O primeiro teste na maior escala revelou overflow horizontal na barra lateral móvel. O layout foi ajustado para posicionar a marca em uma linha e a navegação na seguinte em telas pequenas, mantendo todas as ações visíveis. Nenhuma funcionalidade de negócio foi alterada.
+
+### Revisão de elementos simulados
+
+O rodapé da sidebar apresentava avatar `OT`, indicador verde e o texto `Operations Team`. Embora fosse apenas composição visual, podia sugerir autenticação, presença ou informações operacionais em tempo real, recursos que não existem e estão fora do escopo. O bloco foi removido por completo, preservando apenas identidade do produto e navegação funcional.
+
+Na mesma revisão, a saudação fixa `Bom dia, Equipe!` foi substituída por `Operações em foco` e uma descrição da tarefa da página. A nova redação mantém proximidade com quem opera a ferramenta, mas continua verdadeira em qualquer horário e não sugere personalização ou autenticação inexistentes.
 
 ## Etapa API e regras de negócio
 

@@ -10,7 +10,8 @@
 - Persistência SQLite com dados iniciais obrigatórios e compatibilidade com banco anterior à inclusão de comentários.
 - Monólito de produção que serve React e API Express em um único processo.
 - Health check público em `GET /health` para confirmar a disponibilidade do processo.
-- Testes automatizados e documentação de execução/decisões: 22 testes Vitest e 7 jornadas E2E aprovados; a instalação limpa com `npm.cmd ci` também foi verificada.
+- Testes automatizados e documentação de execução/decisões: 22 testes Vitest e 8 jornadas E2E aprovados; a instalação limpa com `npm.cmd ci` também foi verificada.
+- Controle acessível e persistente de tamanho do texto, com correção do layout móvel no maior nível de escala.
 
 ## 2. O que não foi entregue?
 
@@ -37,11 +38,13 @@ Durante a validação manual, foi observado que o sino com duas notificações n
 
 ## 7. Como o erro foi corrigido e validado?
 
-Os controles foram removidos. A busca funcional da tabela de incidentes foi preservada. A interface foi novamente verificada no monólito local, junto com o build e a suíte automatizada.
+Os controles foram removidos. A busca funcional da tabela de incidentes foi preservada. Pela mesma razão, o avatar e indicador de equipe do rodapé da sidebar foram removidos quando identificados como contexto visual sem funcionalidade; a saudação fixa foi substituída por um cabeçalho funcional, independente de horário e autenticação. A interface foi novamente verificada no monólito local, junto com o build e a suíte automatizada.
 
 ## 8. Houve alguma regressão?
 
-Não houve regressão funcional identificada após o Change Request ou os ajustes visuais: a suíte final executou 21 testes aprovados. A migração do banco foi testada explicitamente com um banco anterior à tabela de comentários.
+Não houve regressão funcional identificada após o Change Request ou os ajustes visuais: a suíte atual executou 22 testes aprovados. A migração do banco foi testada explicitamente com um banco anterior à tabela de comentários.
+
+Durante a inclusão do ajuste de tamanho de texto, o novo E2E detectou overflow horizontal em viewport móvel de 390 px no nível máximo. O problema foi corrigido antes de commit ao reorganizar a barra lateral móvel em duas linhas; as 8 jornadas E2E passaram após a correção. Portanto, houve um defeito introduzido e corrigido na própria etapa de acessibilidade, sem regressão das funcionalidades de incidente.
 
 ## 9. Em qual parte houve mais retrabalho?
 
@@ -53,7 +56,7 @@ A separação imediata entre aplicação frontend e API foi considerada, mas rej
 
 ## 11. Qual parte da aplicação é menos confiável?
 
-A interface ainda é a parte menos coberta. As sete jornadas E2E cobrem dashboard, filtros, criação, comentário, mudança de status `Critical` e viewport móvel, mas não há uma matriz automatizada de acessibilidade em tecnologias assistivas reais. Mudanças futuras na composição visual ainda podem introduzir falhas fora dessa cobertura.
+A interface ainda é a parte menos coberta. As oito jornadas E2E cobrem dashboard, filtros, criação, comentário, mudança de status `Critical`, viewport móvel e ajuste persistente de texto, mas não há uma matriz automatizada de acessibilidade em tecnologias assistivas reais. Mudanças futuras na composição visual ainda podem introduzir falhas fora dessa cobertura.
 
 ## 12. Se tivesse mais duas horas, quais seriam suas três prioridades?
 

@@ -70,9 +70,9 @@ npm.cmd run test:e2e
 npm.cmd run build
 ```
 
-A suíte atual possui testes de domínio, persistência SQLite, API Express, entrega do monólito em produção e sete jornadas E2E no navegador. O build também executa a checagem de tipos TypeScript.
+A suíte atual possui testes de domínio, persistência SQLite, API Express, entrega do monólito em produção e oito jornadas E2E no navegador. O build também executa a checagem de tipos TypeScript.
 
-Em uma cópia limpa do commit `a6d1598`, a instalação com `npm.cmd ci`, os 22 testes Vitest, o build e as 7 jornadas E2E foram executados com sucesso. A execução do monólito pode então ser verificada por `http://localhost:3000/health`.
+Em uma cópia limpa do commit `a6d1598`, a instalação com `npm.cmd ci`, os 22 testes Vitest, o build e as 7 jornadas E2E então existentes foram executados com sucesso. A execução do monólito pode então ser verificada por `http://localhost:3000/health`.
 
 ## Arquitetura
 
@@ -97,11 +97,12 @@ Em desenvolvimento, o Vite serve o React e encaminha `/api` ao Express. Em produ
 - Alterar status, impedindo `Critical: Open -> Resolved`.
 - Registrar histórico de status e comentários persistidos em uma timeline cronológica.
 - Exibir dashboard com incidentes não resolvidos, `Critical` não resolvidos e resolvidos.
+- Ajustar o tamanho do texto entre pequeno, padrão, grande e muito grande; a preferência é persistida localmente.
 
 ## Limitações conhecidas
 
 - Não há autenticação, perfis, multi-tenancy ou notificações; esses itens estão fora do escopo do desafio.
-- Os E2E usam Chrome local e SQLite em memória; por isso não alteram o banco de demonstração. Há validação em viewport móvel de 390 px, mas não uma matriz completa de dispositivos e tecnologias assistivas reais.
+- Os E2E usam Chrome local e SQLite em memória; por isso não alteram o banco de demonstração. Há validação em viewport móvel de 390 px, inclusive no maior tamanho de texto, mas não uma matriz completa de dispositivos e tecnologias assistivas reais.
 - SQLite é adequado ao MVP local, mas uma operação concorrente e distribuída exigiria banco gerenciado, observabilidade e estratégia de migração mais completa.
 
 ## Documentação do desafio

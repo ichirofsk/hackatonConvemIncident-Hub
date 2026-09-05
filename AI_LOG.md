@@ -287,3 +287,57 @@ Uma tentativa de iniciar `tsx` no executor isolado falhou antes de carregar a ap
 ### Decisão
 
 Documentar a reprodução limpa aprovada e manter as instruções de inicialização local no README; não declarar uma validação de processo que não foi possível concluir neste ambiente restrito.
+
+## 12. Acessibilidade - tamanho do texto
+
+### Objetivo
+
+Implementar a melhoria de acessibilidade de maior valor dentro do escopo: permitir que a pessoa usuária ajuste a leitura sem alterar o conteúdo ou os dados do incidente.
+
+### Contexto
+
+O dashboard utiliza vários tamanhos explícitos de fonte e já possuía validação E2E de viewport móvel. Era necessário que o aumento de texto escalasse de fato esses elementos e não apenas a fonte-base do navegador.
+
+### Instrução
+
+Criar controle persistente com reduzir/aumentar, rótulos acessíveis, quatro níveis de escala e testes de aplicação, persistência e layout móvel.
+
+### Resultado
+
+O controle usa `localStorage` para manter a preferência e variáveis CSS para escalar textos explícitos. A primeira execução do E2E encontrou overflow horizontal no nível máximo em 390 px; a barra lateral móvel foi reorganizada para marca e navegação ocuparem linhas separadas.
+
+### Validação
+
+Após a correção, os 8 E2E passaram, incluindo o nível `muito grande` em viewport móvel. Os 22 testes Vitest também permanecem aprovados.
+
+### Decisão
+
+Entregar apenas ajuste de texto nesta etapa. Internacionalização e temas claro/escuro permanecem fora da entrega para evitar expansão de escopo sem requisito do desafio.
+
+## 13. Remoção de contexto visual simulado
+
+### Objetivo
+
+Eliminar da interface elementos que poderiam sugerir recursos inexistentes.
+
+### Contexto
+
+O rodapé da sidebar tinha avatar `OT`, indicador de status e o nome `Operations Team`, apesar de o desafio não incluir autenticação, presença de usuários ou monitoramento em tempo real.
+
+### Instrução
+
+Avaliar se o bloco agregava contexto real ou apenas imitava uma equipe autenticada.
+
+### Resultado
+
+O avatar, indicador e texto de equipe foram removidos. A sidebar agora contém somente marca e navegação funcional.
+
+A saudação fixa do cabeçalho também foi trocada por `Operações em foco` e uma descrição objetiva do papel da página. Isso preserva tom próximo sem depender de horário ou usuário autenticado.
+
+### Validação
+
+A mudança será verificada pelo build e pela suíte E2E, que cobrem a navegação da sidebar.
+
+### Decisão
+
+Não substituir o bloco por rótulo "mockado". A ausência do elemento torna a interface mais clara e aderente ao escopo.

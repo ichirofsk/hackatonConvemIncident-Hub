@@ -102,3 +102,24 @@ test("mantém navegação e ações acessíveis em viewport móvel", async ({ pa
   await expect(page.getByLabel("Buscar por título")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+test("aplica e preserva a preferência de tamanho do texto", async ({ page }) => {
+  await page.goto(baseUrl);
+  const heading = page.getByRole("heading", { name: "Operações em foco" });
+  const defaultSize = await heading.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+
+  await page.getByRole("button", { name: "Aumentar tamanho do texto" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-font-scale", "1.15");
+  const increasedSize = await heading.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(increasedSize).toBeGreaterThan(defaultSize);
+  await expect(page.getByText("Texto grande")).toBeVisible();
+
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-font-scale", "1.15");
+  await expect(page.getByText("Texto grande")).toBeVisible();
+
+  await page.getByRole("button", { name: "Aumentar tamanho do texto" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-font-scale", "1.3");
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
