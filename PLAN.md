@@ -128,9 +128,32 @@ Esta seção funcionará como o acompanhamento passo a passo do desenvolvimento.
 | Etapa | Status | Resultado e validação | Próxima decisão |
 | --- | --- | --- | --- |
 | Planejamento inicial | Concluída | Escopo, arquitetura e critérios de aceite registrados neste documento. | Criar estrutura mínima do projeto. |
-| Estrutura e testes | Pendente | — | — |
+| Estrutura e testes | Concluída | Vite, TypeScript, React e Vitest configurados. O teste de fumaça e o build de produção foram executados com sucesso. | Modelar domínio e persistência. |
 | Domínio e persistência | Pendente | — | — |
 | API e regras de negócio | Pendente | — | — |
 | Interface | Pendente | — | — |
 | Testes e validação final | Pendente | — | — |
 | Deploy e documentação final | Pendente | — | — |
+
+## Etapa Estrutura e testes
+
+### O que foi feito
+
+Foi criada a fundação técnica do monólito modular, sem implementar regras de negócio ou funcionalidades do produto. A estrutura inclui TypeScript, React, Vite e Vitest, além dos diretórios reservados para `domain`, `application`, `infrastructure`, `server`, `client` e `tests`.
+
+Também foram configurados scripts para desenvolvimento, build, preview e testes. Foi adicionado um componente React provisório apenas para confirmar o carregamento do frontend e um teste de fumaça para validar a ferramenta de testes.
+
+Não foram implementados nesta etapa: entidades de incidente, persistência, API, banco de dados, dashboard, listagem, filtros, formulários ou telas de detalhes.
+
+### Testes executados
+
+| Teste | O que validou | Resultado |
+| --- | --- | --- |
+| `npm run test` | Execução do Vitest e carregamento de um módulo TypeScript do projeto. | Aprovado: 1 teste executado com sucesso. |
+| `npm run build` | Verificação de tipos TypeScript e geração do build de produção do frontend. | Aprovado: build concluído sem erros. |
+| Requisição ao preview | Disponibilidade do documento inicial em `http://127.0.0.1:4173/` e presença do ponto de montagem React. | Aprovado: resposta HTTP 200. |
+| Verificação do bundle | Disponibilidade do bundle JavaScript gerado e presença do componente React provisório. | Aprovado: resposta HTTP 200 e conteúdo esperado encontrado. |
+
+### Resultado e próxima decisão
+
+A estrutura está apta para receber módulos de domínio e testes de regras de negócio. O próximo passo planejado é modelar o domínio de incidentes e a persistência, mantendo as fronteiras definidas neste plano.
